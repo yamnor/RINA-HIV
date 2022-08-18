@@ -1,13 +1,15 @@
+import io
+
 from sklearn.manifold import TSNE
-from matplotlib import pyplot as plt
-from matplotlib import collections
+
 import numpy as np
 import pandas as pd
 
 import streamlit as st
-import io
 
-import altair as alt
+from matplotlib import pyplot as plt
+from matplotlib import collections
+
 
 def main():
 
@@ -28,60 +30,52 @@ def main():
   #
   #  np.savetxt('node.txt', xy)
   
-  xy = np.loadtxt('node.txt')
+  xy = np.loadtxt('data/node.txt')
 
   node = pd.DataFrame(xy, columns=['x', 'y'])
   node['chain'] = ['A' for n in range(99)] + ['B' for n in range(99)]
   node['resid'] = [n+1 for n in range(99)] + [n+1 for n in range(99)]
   
-  frac = {k: np.zeros((198, 198)) for k in rin}
+  edge = pd.read_table('data/a_rin.fraction')
+  for x in ['x', 'y']:
+    for i in ['i', 'j']:
+      xi = []
+      for n in range(len(edge)):
+        xi.append(node.at[edge.at[n, i]-1, x])
+      edge[f'{x}{i}'] = xi
 
-  rin_file = st.file_uploader("Choose a RIN fraction file")
+  lines = []
+  for row in edge.itertuples():
+    lines.append([(row.xi, row.yi), (row.xj, row.yj)])
+  
+  lc = collections.LineCollection(lines, linewidth = 2 * edge['vdw'], alpha = 0.5)
 
-  if rin_file is not None:
+  figsize = [6.0, 4.0]
+  subplot = {
+    'left':   0.10,
+    'right':  0.10,
+    'bottom': 0.10,
+    'top':    0.10,
+    'wspace': 1.50,
+    'hspace': 2.00,
+    'grid': True,
+  }
 
-    n = alt.Chart(node).mark_circle().encode(x = 'x', y = 'y', color = 'chain', tooltip=['resid'])
-
-    edge = pd.read_table(rin_file)
-
-    for x in ['x', 'y']:
-      for i in ['i', 'j']:
-        xi = []
-        for n in range(len(edge)):
-          xi.append(node.at(edge.at[n, i]-1, x))
-        edge[f'{x}{i}'] = xi
-
-
-    line = []
-    threshold = 0.01
-    e = [x for x in edge if abs(x['any']) > threshold]
-    pos = [x['pos'] for x in e]
-    for k in rin:
-      val = np.array([abs(x[k]) for x in e])
-      col = ['b' if x[k] > 0.0 else 'r' for x in e]
-      xy_ = pd.DataFrame({'x' : xy[]})
-      line = alt.Chartcollections.LineCollection(pos, linewidths = val * 3.0, colors = col, alpha = 0.5)
-
-    matome = alt.layer(*[c, *l])
-
-    st.altair_chart(matome, use_container_width = True)
-
-    line = {}
-    threshold = 0.01
-    e = [x for x in edge if abs(x['any']) > threshold]
-    pos = [x['pos'] for x in e]
-    for k in rin:
-      val = np.array([abs(x[k]) for x in e])
-      col = ['b' if x[k] > 0.0 else 'r' for x in e]
-      line[k] = collections.LineCollection(pos, linewidths = val * 3.0, colors = col, alpha = 0.5)
-
+  with plt.style.context('matplotlibrc'):
+    plt.rcParams["figure.figsize"]        = figsize
+    plt.rcParams["figure.subplot.left"]   = subplot['left'] / figsize[0]
+    plt.rcParams["figure.subplot.right"]  = 1.00 - subplot['right'] / figsize[0]
+    plt.rcParams["figure.subplot.bottom"] = subplot['bottom'] / figsize[1]
+    plt.rcParams["figure.subplot.top"]    = 1.00 - subplot['top'] / figsize[1]
+    plt.rcParams["figure.subplot.wspace"] = subplot['wspace'] / figsize[0]
+    plt.rcParams["figure.subplot.hspace"] = subplot['hspace'] / figsize[1]
+    plt.rcParams["axes.grid"]             = subplot['grid']
     fig, ax = plt.subplots()
-    for c in ['A', 'B']:
-      ax.scatter(*node[c], s = 25, alpha = 0.5, label = c)
-    for n in range(len(xy)): ax.annotate(n+1, xy = xy[n], size = 6)
-    ax.add_collection(line['hb'])
-    st.pyplot(fig)
 
+  ax.scatter(node[node['chain'] == 'A'].x, node[node['chain'] == 'A'].y, s = 25, alpha = 0.5)
+  ax.scatter(node[node['chain'] == 'B'].x, node[node['chain'] == 'B'].y, s = 25, alpha = 0.5)
+  ax.add_collection(lc)
+  st.pyplot(fig)
 
 if __name__ == "__main__":
     main()

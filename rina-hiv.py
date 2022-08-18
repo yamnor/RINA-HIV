@@ -11,10 +11,13 @@ def main():
 
   st.title("RIN Analyzer")
   
+  node = {}
+
   uploaded_file = st.file_uploader("Choose a PDB file")
+
   if uploaded_file is not None:
     stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
-    xyz = [[float(x) for x in line.split()[5:8]] for line in stringio.readlines() if ' CA ' in line]
+    xyz = np.array([[float(x) for x in line.split()[5:8]] for line in stringio.readlines() if ' CA ' in line])
     
     xy = TSNE(n_components = 2, random_state = 1, perplexity = 50).fit_transform(xyz)[:, ::-1]
     xy = np.array([[x[0], -x[1]] for x in xy])

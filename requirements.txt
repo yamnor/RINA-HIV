@@ -1,12 +1,12 @@
 matplotlib
 numpy
 
-scikit-learn
+#scikit-learn
 
 pandas
-seaborn
+#seaborn
 
-py3Dmol
-stmol
+#py3Dmol
+#stmol
 
 streamlit

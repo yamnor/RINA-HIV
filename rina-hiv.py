@@ -1,6 +1,3 @@
-#import io
-#from sklearn.manifold import TSNE
-
 import numpy as np
 import pandas as pd
 
@@ -9,6 +6,28 @@ import streamlit as st
 from matplotlib import pyplot as plt
 from matplotlib import collections
 
+def mkfig(w, h):
+  figsize = [w, h]
+  subplot = {
+    'left':   0.10,
+    'right':  0.10,
+    'bottom': 0.10,
+    'top':    0.10,
+    'wspace': 1.50,
+    'hspace': 2.00,
+    'grid': True,
+  }
+  with plt.style.context('matplotlibrc'):
+    plt.rcParams["figure.figsize"]        = figsize
+    plt.rcParams["figure.subplot.left"]   = subplot['left'] / figsize[0]
+    plt.rcParams["figure.subplot.right"]  = 1.00 - subplot['right'] / figsize[0]
+    plt.rcParams["figure.subplot.bottom"] = subplot['bottom'] / figsize[1]
+    plt.rcParams["figure.subplot.top"]    = 1.00 - subplot['top'] / figsize[1]
+    plt.rcParams["figure.subplot.wspace"] = subplot['wspace'] / figsize[0]
+    plt.rcParams["figure.subplot.hspace"] = subplot['hspace'] / figsize[1]
+    plt.rcParams["axes.grid"]             = subplot['grid']
+    fig, ax = plt.subplots()
+  return fig, ax
 
 def main():
 
@@ -28,7 +47,6 @@ def main():
 
   xy = np.loadtxt('data/node.txt')
   
-
   #angle = st.slider('Rotate', -180, 180, 175)
   angle = 175
   theta = angle * 3.14 / 180
@@ -66,27 +84,7 @@ def main():
 
     lc = collections.LineCollection(lines, linewidth = fracs, alpha = 0.5)
 
-    figsize = [6.0, 4.0]
-    subplot = {
-      'left':   0.10,
-      'right':  0.10,
-      'bottom': 0.10,
-      'top':    0.10,
-      'wspace': 1.50,
-      'hspace': 2.00,
-      'grid': True,
-    }
-
-    with plt.style.context('matplotlibrc'):
-      plt.rcParams["figure.figsize"]        = figsize
-      plt.rcParams["figure.subplot.left"]   = subplot['left'] / figsize[0]
-      plt.rcParams["figure.subplot.right"]  = 1.00 - subplot['right'] / figsize[0]
-      plt.rcParams["figure.subplot.bottom"] = subplot['bottom'] / figsize[1]
-      plt.rcParams["figure.subplot.top"]    = 1.00 - subplot['top'] / figsize[1]
-      plt.rcParams["figure.subplot.wspace"] = subplot['wspace'] / figsize[0]
-      plt.rcParams["figure.subplot.hspace"] = subplot['hspace'] / figsize[1]
-      plt.rcParams["axes.grid"]             = subplot['grid']
-      fig, ax = plt.subplots()
+    fig, ax = mkfig(6.0, 4.0)
 
     for c in ['A', 'B', 'C']:
       ax.scatter(node[node['chain'] == c].x, node[node['chain'] == c].y, s = 25, alpha = 0.5, label = c)

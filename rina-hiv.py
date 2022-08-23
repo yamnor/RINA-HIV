@@ -136,16 +136,7 @@ def main():
 
       lc2 = collections.LineCollection(lines2, linewidth = fracs2, colors = color2, alpha = 0.5)
 
-      with plt.style.context('matplotlibrc'):
-        plt.rcParams["figure.figsize"]        = figsize
-        plt.rcParams["figure.subplot.left"]   = subplot['left'] / figsize[0]
-        plt.rcParams["figure.subplot.right"]  = 1.00 - subplot['right'] / figsize[0]
-        plt.rcParams["figure.subplot.bottom"] = subplot['bottom'] / figsize[1]
-        plt.rcParams["figure.subplot.top"]    = 1.00 - subplot['top'] / figsize[1]
-        plt.rcParams["figure.subplot.wspace"] = subplot['wspace'] / figsize[0]
-        plt.rcParams["figure.subplot.hspace"] = subplot['hspace'] / figsize[1]
-        plt.rcParams["axes.grid"]             = subplot['grid']
-        fig, ax = plt.subplots()
+      fig, ax = mkfig(6.0, 4.0)
 
       for c in ['A', 'B', 'C']:
         ax.scatter(node[node['chain'] == c].x, node[node['chain'] == c].y, s = 25, alpha = 0.5, label = c)

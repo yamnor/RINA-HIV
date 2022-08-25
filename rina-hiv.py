@@ -119,21 +119,36 @@ def main():
             xi.append(node.at[edge2.at[n, i]-1, x])
           edge2[f'{x}{i}'] = xi
 
-      for idx, row in edge.iterrows():
-        row2 = edge2[(edge2['i'] == row.i) & (edge2['j'] == row.j)]
-        edge2.loc[(edge2['i'] == row.i) & (edge2['j'] == row.j), rin_selected2] = row[rin_selected2] - row2[rin_selected2]
-      
+      resid = edge[['i', 'j']]
+      resid = resid.append(edge2[['i', 'j']])
+      resid = resid[~resid.duplicated()]
+
       lines2 = []
       fracs2 = []
       color2 = []
-      for idx, row in edge2[abs(edge2[rin_selected2]) > rin_threshold2].iterrows():
-        lines2.append([(row['xi'], row['yi']), (row['xj'], row['yj'])])
-        fracs2.append(abs(row[rin_selected2]) * 4)
-        if row[rin_selected2] > 0.0:
-          color2.append('b')
+      for _, idx in resid.iterrows():
+        i, j = idx.i, idx.j
+        d1 = edge[(edge['i'] == i) & (edge['j'] == j)][rin_selected2]
+        if d1.empty:
+          v1 = 0
         else:
-          color2.append('r')
-
+          v1 = d1.iloc[-1]
+        d2 = edge2[(edge2['i'] == i) & (edge2['j'] == j)][rin_selected2]
+        if d2.empty:
+          v2 = 0
+        else:
+          v2 = d2.iloc[-1]
+        diff = v1 - v2
+        if abs(diff) > rin_threshold2:
+          xi, yi = node.at[i-1, 'x'], node.at[i-1, 'y']
+          xj, yj = node.at[j-1, 'x'], node.at[j-1, 'y']
+          lines2.append([(xi, yi), (xj, yj)])  
+          fracs2.append(abs(diff) * 4)  
+          if diff > 0.0:
+            color2.append('b')
+          else:
+            color2.append('r')
+      
       lc2 = collections.LineCollection(lines2, linewidth = fracs2, colors = color2, alpha = 0.5)
 
       fig, ax = mkfig(6.0, 4.0)

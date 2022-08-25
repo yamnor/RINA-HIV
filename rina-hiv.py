@@ -121,7 +121,6 @@ def main():
 
       for idx, row in edge.iterrows():
         row2 = edge2[(edge2['i'] == row.i) & (edge2['j'] == row.j)]
-        st.write(row2)
         edge2.loc[(edge2['i'] == row.i) & (edge2['j'] == row.j), rin_selected2] = row[rin_selected2] - row2[rin_selected2]
       
       lines2 = []
